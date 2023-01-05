@@ -1,5 +1,2 @@
-
-
-spacy==3.4.0
-
 pytest
+spacy==3.4.0
