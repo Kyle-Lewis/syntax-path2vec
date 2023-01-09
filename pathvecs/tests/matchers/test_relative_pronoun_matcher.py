@@ -60,34 +60,34 @@ def matcher(en_vocab):
     return matcher
 
 
-def mapString(mapping, doc):
+def map_string(mapping, doc):
     return "{} => {}".format(doc[mapping[0]], doc[mapping[1]])
 
 
-def assertMappingInMappings(mapping, gold_mappings, doc, desc):
+def assert_mapping_in_mappings(mapping, gold_mappings, doc, desc):
     """ Assertion helper, makes test failures readable. """
     __tracebackhide__ = True  # pylint: disable=unused-variable
 
     if mapping not in gold_mappings:
-        expected_str = ', '.join(mapString(m, doc) for m in gold_mappings)
+        expected_str = ', '.join(map_string(m, doc) for m in gold_mappings)
         failure_lines = [
             desc,
             "{:<10} {}".format("Given:", str(doc)),
             "{:<10} {}".format("Expected:", expected_str),
-            "{:<10} {}".format("Found:", mapString(mapping, doc))
+            "{:<10} {}".format("Found:", map_string(mapping, doc))
         ]
         pytest.fail("\n".join(failure_lines))
 
 
-def assertExpectedNumberOfMappings(found_mappings, gold_mappings, doc, desc):
+def assert_expected_num(found_mappings, gold_mappings, doc, desc):
     """ Assertion helper, makes test failures readable. """
     __tracebackhide__ = True  # pylint: disable=unused-variable
     n_expected = len(gold_mappings)
     n_found = len(found_mappings)
     if n_found != n_expected:
 
-        expected_str = ', '.join(mapString(m, doc) for m in gold_mappings)
-        found_str = ', '.join(mapString(m, doc) for m in found_mappings)
+        expected_str = ', '.join(map_string(m, doc) for m in gold_mappings)
+        found_str = ', '.join(map_string(m, doc) for m in found_mappings)
         failure_lines = [
             desc,
             "{:<20} {}".format("Given:", str(doc)),
@@ -100,8 +100,8 @@ def assertExpectedNumberOfMappings(found_mappings, gold_mappings, doc, desc):
 
 
 @pytest.mark.parametrize("params", params)
-def testNominalSpanMatcher(params, matcher):
-    """ Test that the nominal matcher gets the correct spans for each doc """
+def test_relative_pronoun_matcher(params, matcher):
+    """ Test that the pronoun matcher maps the expected antecedent pairs """
 
     description = params.pop('description')
     gold_antecedents = params.pop('gold_antecedents')
@@ -116,7 +116,7 @@ def testNominalSpanMatcher(params, matcher):
 
 
     for mapping in mapped_antecedents:
-        assertMappingInMappings(mapping, gold_antecedents, doc, description)
+        assert_mapping_in_mappings(mapping, gold_antecedents, doc, description)
 
-    assertExpectedNumberOfMappings(
+    assert_expected_num(
         mapped_antecedents, gold_antecedents, doc, description)

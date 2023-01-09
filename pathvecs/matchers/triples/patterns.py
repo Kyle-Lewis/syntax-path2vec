@@ -1,16 +1,7 @@
-"""
-Extracts the
-
-Example:
-
-    "A glass of water." ->
-        (glass)-[of]->(water)
-"""
-
 import itertools
 from typing import List, NamedTuple
 
-from spacy.tokens import Doc
+from spacy.tokens import Doc, Token
 
 
 # common matcher attributes
@@ -20,9 +11,9 @@ be_attrs = {"LEMMA": {"IN": ["be", "become", "remain"]}}
 
 
 class Triple(NamedTuple):
-    src: int
+    src: Token
     edge: str
-    dst: int
+    dst: Token
 
 
 TRIPLE_PATTERNS = {
@@ -30,7 +21,7 @@ TRIPLE_PATTERNS = {
     # syntactic path between a nominal head and its prepositional object
     "prep": {
         "name": "prep",
-        "edge_fstring": "{}",
+        "edge_fstring": "prep_{}",
         "src_rule_index": 0,
         "dst_rule_index": 2,
         "edge_rule_indices": [1],
@@ -463,7 +454,9 @@ def get_triple(match: List[int], key: str, doc: Doc) -> Triple:
     edge_fargs = [t.lemma_.lower() for t in edge_tokens]
     edge_name = data['edge_fstring'].format(*edge_fargs)
 
-    return Triple(src_token_index, edge_name, dst_token_index)
+    src = doc[src_token_index]
+    dst = doc[dst_token_index]
+    return Triple(src, edge_name, dst)
 
 
 def get_pattern_verb_type(key: str):

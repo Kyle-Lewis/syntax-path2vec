@@ -18,19 +18,13 @@ Typical usage example:
 
 from spacy.matcher import DependencyMatcher
 from spacy.language import Language
+from spacy.tokens import Token
 
+import pathvecs.matchers.relative_pronouns.patterns as patterns
 
 @Language.factory('map_relative_pronouns')
 def createRelativePronounMatcherComponent(nlp, name):
     return RelativePronounMatcher(nlp)
-
-PATTERNS = {
-    'relative_pronoun': [
-        {"RIGHT_ID": 'pronoun', "RIGHT_ATTRS": {"LEMMA": {"IN": ['which', 'that', 'whom', 'who', 'whose']}}},
-        {"RIGHT_ID": 'verb', "LEFT_ID": 'pronoun', "REL_OP": "<<", "RIGHT_ATTRS": {"TAG": {"IN": ["VB", "VBD", "VBG", "VBN", "VBP", "VBZ"]}, "DEP": "relcl"}},
-        {"RIGHT_ID": 'antecedent', "LEFT_ID": 'verb', "REL_OP": "<", "RIGHT_ATTRS": {"POS": {"IN": ["NOUN", "PRON", "PROPN"]}}}
-    ]
-}
 
 class RelativePronounMatcher:
     """ A spacy DependencyMatcher object wrapped as a pipeline component
@@ -39,19 +33,31 @@ class RelativePronounMatcher:
         matcher: A spacy.Matcher component with patterns loaded on init
     """
 
-    def __init__(self, nlp):
+    def __init__(self, nlp, use_patterns=None):
 
-        # Create a matcher using our set of frame patterns
+        # Create a matcher using the specified patterns, or all by default
         self.matcher = DependencyMatcher(nlp.vocab, validate=True)
-        for key, pattern in PATTERNS.items():
-            self.matcher.add(key, [pattern], on_match=mapRelativePronoun)
+
+        # Register token extension
+        if not Token.has_extension('antecedent'):
+            Token.set_extension('antecedent', default=None)
+
+        if use_patterns is not None:
+
+            for pattern_key in use_patterns:
+                pattern = patterns.get_pattern(pattern_key)
+                self.matcher.add(pattern_key, [pattern], on_match=on_match)
+
+        else:
+            for pattern_key, pattern in patterns.get_all_patterns():
+                self.matcher.add(pattern_key, [pattern], on_match=on_match)
 
     def __call__(self, doc):
         self.matcher(doc)
         return doc
 
 
-def mapRelativePronoun(_matcher, doc, i, matches):
+def on_match(_matcher, doc, i, matches):
 
     _match_id, match_token_ids = matches[i]
     pronoun = doc[match_token_ids[0]]

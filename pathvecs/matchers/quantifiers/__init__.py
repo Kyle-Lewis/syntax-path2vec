@@ -1,0 +1,1 @@
+from pathvecs.matchers.quantifiers.quantifiers import QuantifiedObjectMatcher
