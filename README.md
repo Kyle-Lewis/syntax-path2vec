@@ -37,10 +37,9 @@ which are represented bidirectionally as (word, context) pairs:
 These are in addition to the word-context pairs for the significant 1-hop dependency paths
 ### 3_path2vec
 
-## Model
-The model class provides a *most_similar()* helper to inspect nearest neighbors.
-TODO note wvocab / cvocab distinction
-
+## Inspecting Model Outputs
+There is a helper notebook to load a saved state_dict and inspect nearest
+neighbors for a given word or path embedding.
 ```
 model.most_similar('move-to')
 [('move-to', 1.0),
@@ -53,4 +52,16 @@ model.most_similar('move-to')
  ('leave-for', 0.7774271965026855),
  ('reside-in', 0.7711591124534607),
  ('travel-to', 0.768322229385376)]
+
+model.most_similar('be_president_of')
+[('be_president_of', 0.9999999403953552),
+ ('be_chairman_of', 0.8024470806121826),
+ ('be_chair_of', 0.764552891254425),
+ ('be_manager_of', 0.7625577449798584),
+ ('be_founder_of', 0.7623101472854614),
+ ('be_director_of', 0.7604293823242188),
+ ('be_ceo_of', 0.7582588791847229),
+ ('be_member_of', 0.7575125694274902),
+ ('appos_chairman_of', 0.7554025650024414),
+ ('work-at', 0.7434799075126648)]
 ```
